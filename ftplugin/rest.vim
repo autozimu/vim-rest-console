@@ -134,6 +134,7 @@ function! s:CallCurl(request)
     endfor
     if !hasContentType
         let contentType = s:GetOptValue('vrc_header_content_type', 'application/json')
+        let a:request.headers['Content-Type'] = contentType
         call add(curlArgs, '-H ' . shellescape('Content-Type: ' . contentType))
     endif
 
@@ -146,6 +147,14 @@ function! s:CallCurl(request)
     elseif httpVerb !=? 'POST'
         """ Use -X/--request for any verbs other than POST.
         call add(curlArgs, '-X ' . httpVerb)
+    endif
+
+    """ validate json body
+    if !empty(a:request.dataBody) && a:request.headers['Content-Type'] ==? 'application/json'
+        let out = system('jq .', a:request.dataBody)
+        if v:shell_error != 0
+            return out
+        endif
     endif
 
     """ Add data body.
