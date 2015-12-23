@@ -151,7 +151,7 @@ function! s:CallCurl(request)
 
     """ validate json body
     if !empty(a:request.dataBody) && a:request.headers['Content-Type'] ==? 'application/json'
-        let out = system('jq .', a:request.dataBody)
+        let out = system('python -m json.tool', a:request.dataBody)
         if v:shell_error != 0
             return out
         endif
